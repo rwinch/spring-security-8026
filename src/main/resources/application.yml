@@ -1,0 +1,17 @@
+server:
+  port: 9999
+
+csrf:
+  enabled: true
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        # See https://webhook.site/#!/ff36f3af-5499-428d-96b2-f0f49469c5e3
+        - id: example
+          uri: https://webhook.site
+          predicates:
+            - Path=/**
+          filters:
+            - PrefixPath=/ff36f3af-5499-428d-96b2-f0f49469c5e3

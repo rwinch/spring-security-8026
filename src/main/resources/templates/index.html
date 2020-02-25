@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <script
+      src="https://code.jquery.com/jquery-3.4.1.min.js"
+      integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+      crossorigin="anonymous"></script>
+  <!-- Taken from https://owasp.org/www-project-cheat-sheets/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#jquery -->
+  <script type="text/javascript">
+  $(document).ready(() => {
+    const csrfToken = $('meta[name="_csrf"]').attr('content');
+
+    function csrfSafeMethod(method) {
+      // these HTTP methods do not require CSRF protection
+      return (/^(GET|HEAD|OPTIONS)$/.test(method));
+    }
+
+    $.ajaxSetup({
+      beforeSend: function(xhr, settings) {
+        if (!csrfSafeMethod(settings.type) && !this.crossDomain && csrfToken) {
+          xhr.setRequestHeader("X-CSRF-TOKEN", csrfToken);
+        }
+      }
+    });
+  });
+  </script>
+
+  <meta th:if="${csrfToken != null}" name="_csrf" th:content="${csrfToken}">
+</head>
+
+<body>
+<h1>CSRF test on Origin</h1>
+
+<h2>Form example</h2>
+<form action="foo" method="POST">
+  <label>Foo</label> <input name="foo" value="bar"/>
+  <input th:if="${csrfToken != null}" type="hidden" name="_csrf" th:value="${csrfToken}" />
+  <input type="submit">
+</form>
+
+<h2>AJAX example</h2>
+<button onclick="transfer()">Submit</button>
+
+<script>
+  function transfer() {
+    $.ajax({
+      type: "POST",
+      url: "foo?foo=bar"
+    });
+  }
+  </script>
+</body>
+</html>
